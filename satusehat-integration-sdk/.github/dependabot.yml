@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /sdks/go
+    schedule: {interval: weekly}
+  - package-ecosystem: npm
+    directory: /sdks/node
+    schedule: {interval: weekly}
+  - package-ecosystem: maven
+    directory: /sdks/java
+    schedule: {interval: weekly}
+  - package-ecosystem: pip
+    directory: /sdks/python
+    schedule: {interval: weekly}
+  - package-ecosystem: composer
+    directory: /sdks/php
+    schedule: {interval: weekly}
+  - package-ecosystem: nuget
+    directory: /sdks/dotnet
+    schedule: {interval: weekly}

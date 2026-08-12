@@ -1,0 +1,2 @@
+package id.kemkes.satusehat;
+public enum EventStatus { QUEUED, PROCESSING, SUCCESS, WAITING_FOR_CORRECTION, RATE_LIMITED, RETRYING, DEAD_LETTER, CANCELLED }

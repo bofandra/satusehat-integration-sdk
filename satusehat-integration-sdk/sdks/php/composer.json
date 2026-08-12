@@ -1,0 +1,10 @@
+{
+  "name": "satusehat/integration-sdk",
+  "description": "SATUSEHAT Integration SDK reference implementation for PHP",
+  "version": "0.1.0",
+  "type": "library",
+  "license": "Apache-2.0",
+  "require": {"php": ">=8.2", "ext-curl": "*", "ext-pdo": "*", "ext-pdo_sqlite": "*"},
+  "autoload": {"psr-4": {"Satusehat\\IntegrationSdk\\": "src/"}},
+  "scripts": {"test": "php tests/smoke.php"}
+}

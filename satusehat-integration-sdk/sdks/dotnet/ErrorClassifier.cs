@@ -1,0 +1,2 @@
+namespace Satusehat.IntegrationSdk;
+public static class ErrorClassifier{public static (string Category,bool Retryable) Classify(int s)=>s switch{>=200 and <=299=>("success",false),401=>("unauthorized",true),403=>("forbidden",false),404=>("not_found",false),409=>("conflict",false),422=>("validation_error",false),429=>("rate_limited",true),>=500 and <=599=>("server_error",true),>=400 and <=499=>("invalid_request",false),_=>("unexpected_http_status",false)};}

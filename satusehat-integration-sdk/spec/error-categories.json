@@ -1,0 +1,14 @@
+{
+  "success": {"retryable": false},
+  "unauthorized": {"retryable": true},
+  "forbidden": {"retryable": false},
+  "not_found": {"retryable": false},
+  "conflict": {"retryable": false},
+  "validation_error": {"retryable": false},
+  "rate_limited": {"retryable": true},
+  "server_error": {"retryable": true},
+  "invalid_request": {"retryable": false},
+  "unexpected_http_status": {"retryable": false},
+  "transport_error": {"retryable": true},
+  "authentication_or_client_error": {"retryable": true}
+}

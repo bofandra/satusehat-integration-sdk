@@ -1,0 +1,4 @@
+export class FhirClient{
+ constructor(config,tokens){this.config=config;this.tokens=tokens}
+ async requestOnce(method,rt,id,payload){let url=`${this.config.fhirBaseUrl}/${rt}`;if(id)url+=`/${id}`;const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),this.config.timeoutSeconds*1000);try{const token=await this.tokens.getToken();const headers={authorization:`Bearer ${token}`,accept:'application/fhir+json, application/json','content-type':method.toUpperCase()==='PATCH'?'application/json-patch+json':'application/fhir+json'};const r=await fetch(url,{method:method.toUpperCase(),headers,body:payload==null?undefined:JSON.stringify(payload),signal:ctl.signal});const body=await r.text();const h={};r.headers.forEach((v,k)=>h[k]=v);return {statusCode:r.status,body,headers:h}}finally{clearTimeout(t)}}
+}

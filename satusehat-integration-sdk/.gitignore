@@ -1,0 +1,17 @@
+.env
+*.db
+*.sqlite
+*.sqlite3
+.DS_Store
+.idea/
+.vscode/
+__pycache__/
+.pytest_cache/
+.venv/
+node_modules/
+dist/
+target/
+bin/
+obj/
+vendor/
+coverage/

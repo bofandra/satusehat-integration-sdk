@@ -1,0 +1,21 @@
+name: Bug report
+description: Report SDK behavior that does not match the documented contract
+body:
+  - type: dropdown
+    id: sdk
+    attributes:
+      label: SDK
+      options: [Go, Java, Node.js/TypeScript, Python, PHP, .NET, Common]
+    validations: {required: true}
+  - type: textarea
+    id: description
+    attributes: {label: Description}
+    validations: {required: true}
+  - type: textarea
+    id: reproduce
+    attributes: {label: Reproduction steps}
+  - type: textarea
+    id: sanitized
+    attributes:
+      label: Sanitized error
+      description: Do not include credentials, access tokens, NIK, names, or clinical payloads.
