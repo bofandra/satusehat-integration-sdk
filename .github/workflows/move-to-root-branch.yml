@@ -1,0 +1,65 @@
+name: Prepare branch to move satusehat contents to repository root
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  move-to-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Create branch and move contents
+        env:
+          BRANCH: move/satusehat-root
+        run: |
+          set -euo pipefail
+
+          if [ ! -d "satusehat-integration-sdk" ]; then
+            echo "satusehat-integration-sdk directory not found; nothing to move"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Create and checkout new branch from current ref (main by default)
+          git fetch origin
+          git checkout -b "$BRANCH"
+
+          # Enable dotglob so hidden files are moved too (bash only)
+          if [ -n "${BASH_VERSION-}" ]; then
+            shopt -s dotglob || true
+          fi
+
+          # Move visible files (may overwrite existing files in root)
+          mv -f satusehat-integration-sdk/* . || true
+
+          # Move hidden files (skip . and ..)
+          for f in satusehat-integration-sdk/.*; do
+            [ -e "$f" ] || continue
+            base=$(basename "$f")
+            if [ "$base" = "." ] || [ "$base" = ".." ]; then
+              continue
+            fi
+            mv -f "$f" . || true
+          done
+
+          # Remove the empty directory
+          rm -rf satusehat-integration-sdk || true
+
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Move satusehat-integration-sdk contents to repository root (branch)"
+            git push --set-upstream origin "$BRANCH"
+            echo "Branch '$BRANCH' pushed to origin"
+          fi
