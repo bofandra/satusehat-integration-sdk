@@ -1,4 +1,4 @@
-name: Prepare branch to move satusehat contents to repository root
+name: Move satusehat contents to repository root (rebase-safe)
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 jobs:
-  move-to-branch:
+  move-to-branch-rebase:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,9 +16,45 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Create branch and move contents
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Prepare branch and rebase-safe sync
         env:
           BRANCH: move/satusehat-root
+        run: |
+          set -euo pipefail
+
+          git fetch origin --prune
+
+          # If branch exists on remote, check it out and rebase it onto origin/main
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            echo "Remote branch $BRANCH exists. Checking out and syncing..."
+            git checkout "$BRANCH"
+
+            # Bring local branch up-to-date with its remote counterpart
+            git pull --rebase --autostash origin "$BRANCH" || {
+              echo "Failed to pull/rebase remote branch $BRANCH. Aborting as requested (fail on conflict)."
+              exit 1
+            }
+
+            # Rebase the branch onto latest main
+            git fetch origin main
+            git rebase origin/main || {
+              echo "Rebase of $BRANCH onto origin/main failed due to conflicts. Resolve manually."
+              git rebase --abort || true
+              exit 1
+            }
+
+          else
+            echo "Remote branch $BRANCH does not exist. Creating from origin/main..."
+            git fetch origin main
+            git checkout -b "$BRANCH" origin/main
+          fi
+
+      - name: Move satusehat-integration-sdk contents to repo root
         run: |
           set -euo pipefail
 
@@ -27,19 +63,12 @@ jobs:
             exit 1
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          # Create and checkout new branch from current ref (main by default)
-          git fetch origin
-          git checkout -b "$BRANCH"
-
-          # Enable dotglob so hidden files are moved too (bash only)
+          # Enable dotglob for bash so hidden files are moved too
           if [ -n "${BASH_VERSION-}" ]; then
             shopt -s dotglob || true
           fi
 
-          # Move visible files (may overwrite existing files in root)
+          # Move visible files (overwrite existing)
           mv -f satusehat-integration-sdk/* . || true
 
           # Move hidden files (skip . and ..)
@@ -52,14 +81,36 @@ jobs:
             mv -f "$f" . || true
           done
 
-          # Remove the empty directory
+          # Remove the (now-empty) directory
           rm -rf satusehat-integration-sdk || true
 
+      - name: Commit changes
+        env:
+          COMMIT_MSG: "Move satusehat-integration-sdk contents to repository root"
+        run: |
+          set -euo pipefail
           git add -A
           if git diff --staged --quiet; then
             echo "No changes to commit"
-          else
-            git commit -m "Move satusehat-integration-sdk contents to repository root (branch)"
-            git push --set-upstream origin "$BRANCH"
-            echo "Branch '$BRANCH' pushed to origin"
+            exit 0
           fi
+
+          git commit -m "$COMMIT_MSG"
+
+      - name: Push branch
+        env:
+          BRANCH: move/satusehat-root
+        run: |
+          set -euo pipefail
+
+          # Attempt to push. If remote tip has advanced since we last fetched, do NOT force — fail so user can inspect.
+          if git push --set-upstream origin "$BRANCH"; then
+            echo "Branch pushed: $BRANCH"
+          else
+            echo "Push failed because remote has new commits. To preserve safety we will not force. Resolve locally or re-run workflow after syncing."
+            exit 1
+          fi
+
+      - name: Output next steps
+        run: |
+          echo "Branch move/satusehat-root created/updated. Please open a Pull Request from this branch to main via the GitHub UI to review and merge."
