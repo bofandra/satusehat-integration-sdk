@@ -1,0 +1,93 @@
+name: Move satusehat contents to repository root and open PR
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  move-and-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Move satusehat-integration-sdk contents to repo root and push branch
+        env:
+          BRANCH: move/satusehat-root
+        run: |
+          set -euo pipefail
+
+          if [ ! -d "satusehat-integration-sdk" ]; then
+            echo "satusehat-integration-sdk directory not found; nothing to move"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Create new branch from default ref
+          git checkout -b "$BRANCH"
+
+          # Enable dotglob in bash to move hidden files as well
+          if [ -n "${BASH_VERSION-}" ]; then
+            shopt -s dotglob || true
+          fi
+
+          # Move regular and hidden files from the directory to repo root
+          mv -f satusehat-integration-sdk/* . || true
+          for f in satusehat-integration-sdk/.*; do
+            [ -e "$f" ] || continue
+            base=$(basename "$f")
+            if [ "$base" = "." ] || [ "$base" = ".." ]; then
+              continue
+            fi
+            mv -f "$f" . || true
+          done
+
+          # Remove the now-empty directory
+          rm -rf satusehat-integration-sdk || true
+
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Move satusehat-integration-sdk contents to repository root"
+          git push --set-upstream origin "$BRANCH"
+
+      - name: Create Pull Request
+        if: success()
+        env:
+          BRANCH: move/satusehat-root
+          GITHUB_API_URL: https://api.github.com
+        run: |
+          set -euo pipefail
+          PR_PAYLOAD=$(jq -n --arg title "Move satusehat-integration-sdk contents to repository root" \
+                            --arg head "$BRANCH" \
+                            --arg base "main" \
+                            --arg body "This PR moves the extracted package contents from satusehat-integration-sdk/ to the repository root and removes the containing folder. Please review before merging." \
+                            '{title: $title, head: $head, base: $base, body: $body}')
+
+          echo "Creating PR with payload: $PR_PAYLOAD"
+
+          RESPONSE=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/${{ github.repository }}/pulls" \
+            -d "$PR_PAYLOAD")
+
+          echo "$RESPONSE" > pr_response.json
+          PR_URL=$(python -c "import json,sys; print(json.load(open('pr_response.json')).get('html_url',''))")
+          if [ -n "$PR_URL" ]; then
+            echo "PR created: $PR_URL"
+          else
+            echo "Failed to create PR. Response:"
+            cat pr_response.json
+            exit 1
+          fi
