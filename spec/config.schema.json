@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SATUSEHAT SDK Configuration",
+  "type": "object",
+  "required": ["client_id", "client_secret", "organization_id"],
+  "properties": {
+    "environment": {"enum": ["sandbox", "production"], "default": "sandbox"},
+    "client_id": {"type": "string", "minLength": 1},
+    "client_secret": {"type": "string", "minLength": 1},
+    "organization_id": {"type": "string", "minLength": 1},
+    "queue_path": {"type": "string", "default": "./satusehat-sdk.db"},
+    "timeout_seconds": {"type": "integer", "minimum": 1, "default": 30},
+    "rate_limit_rpm": {"type": "integer", "minimum": 1, "default": 300},
+    "max_retries": {"type": "integer", "minimum": 1, "default": 5},
+    "processing_timeout_seconds": {"type": "integer", "minimum": 1, "default": 300},
+    "initial_backoff_ms": {"type": "integer", "minimum": 1, "default": 1000},
+    "max_backoff_ms": {"type": "integer", "minimum": 1, "default": 60000},
+    "oauth_base_url_override": {"type": ["string", "null"]},
+    "fhir_base_url_override": {"type": ["string", "null"]}
+  }
+}

@@ -1,0 +1,112 @@
+<?php
+namespace Satusehat\IntegrationSdk;
+
+final class SatusehatSdk {
+    private SQLiteQueue $q;
+    private TokenProvider $tokens;
+    private FhirClient $fhir;
+    private float $last = 0;
+
+    public function __construct(private Config $c) {
+        $this->q = new SQLiteQueue($c->queuePath, $c->processingTimeoutSeconds);
+        $this->tokens = new TokenProvider($c);
+        $this->fhir = new FhirClient($c, $this->tokens);
+    }
+
+    public function enqueue(string $op, string $rt, ?string $id = null, ?string $payload = null, ?string $idempotencyKey = null): string {
+        return $this->q->enqueue($this->c->organizationId, $op, $rt, $id, $payload, $idempotencyKey);
+    }
+
+    public function queueStats(): array {
+        return $this->q->stats();
+    }
+
+    public function deadLetters(int $limit = 50): array {
+        return $this->q->deadLetters($limit);
+    }
+
+    public function requeue(string $eventId): bool {
+        return $this->q->requeue($eventId);
+    }
+
+    private function pace(): void {
+        $interval = 60 / $this->c->rateLimitRpm;
+        $d = $this->last + $interval - microtime(true);
+        if ($d > 0) {
+            usleep((int)($d * 1_000_000));
+        }
+        $this->last = microtime(true);
+    }
+
+    public function request(string $op, string $rt, ?string $id = null, ?string $payload = null): array {
+        $last = [];
+        for ($a = 1; $a <= $this->c->maxRetries; $a++) {
+            $this->pace();
+            try {
+                $last = $this->fhir->requestOnce($op, $rt, $id, $payload);
+            } catch (\Throwable $e) {
+                if ($a >= $this->c->maxRetries) {
+                    throw $e;
+                }
+                usleep($this->backoff($a, null) * 1000);
+                continue;
+            }
+            if ($last['statusCode'] === 401) {
+                $this->tokens->invalidate();
+            }
+            [, $retry] = ErrorClassifier::classify($last['statusCode']);
+            if (!$retry || $a >= $this->c->maxRetries) {
+                return $last;
+            }
+            usleep($this->backoff($a, $last['headers']['retry-after'] ?? null) * 1000);
+        }
+        return $last;
+    }
+
+    public function processOnce(int $limit = 20): int {
+        $rows = $this->q->ready($limit);
+        foreach ($rows as $e) {
+            $a = $this->q->markProcessing($e['event_id']);
+            $this->pace();
+            try {
+                $this->apply($e['event_id'], $a, $this->fhir->requestOnce($e['operation'], $e['resource_type'], $e['resource_id'] ?: null, $e['payload_json'] ?: null));
+            } catch (\Throwable $x) {
+                $this->schedule($e['event_id'], $a, 'transport_error', $x->getMessage(), null, null, EventStatus::RETRYING);
+            }
+        }
+        return count($rows);
+    }
+
+    private function apply(string $id, int $a, array $r): void {
+        [$cat, $retry] = ErrorClassifier::classify($r['statusCode']);
+        if ($r['statusCode'] >= 200 && $r['statusCode'] <= 299) {
+            $this->q->complete($id, EventStatus::SUCCESS, $r['statusCode']);
+            return;
+        }
+        if ($r['statusCode'] === 401) {
+            $this->tokens->invalidate();
+        }
+        if ($retry) {
+            $this->schedule($id, $a, $cat, $r['body'], $r['statusCode'], $r['headers']['retry-after'] ?? null, $r['statusCode'] === 429 ? EventStatus::RATE_LIMITED : EventStatus::RETRYING);
+            return;
+        }
+        $this->q->complete($id, EventStatus::WAITING_FOR_CORRECTION, $r['statusCode'], $cat, $r['body']);
+    }
+
+    private function schedule(string $id, int $a, string $cat, string $msg, ?int $http, ?string $ra, EventStatus $target): void {
+        if ($a >= $this->c->maxRetries) {
+            $this->q->complete($id, EventStatus::DEAD_LETTER, $http, $cat, $msg);
+            return;
+        }
+        $next = gmdate('Y-m-d\TH:i:s\Z', time() + (int)ceil($this->backoff($a, $ra) / 1000));
+        $this->q->complete($id, $target, $http, $cat, $msg, $next);
+    }
+
+    private function backoff(int $a, ?string $ra): int {
+        if ($ra !== null && is_numeric($ra)) {
+            return max(0, (int)((float)$ra * 1000));
+        }
+        $base = min($this->c->maxBackoffMs, (int)($this->c->initialBackoffMs * (2 ** max(0, $a - 1))));
+        return $base + random_int(0, max(1, min(1000, (int)($base * .2))));
+    }
+}

@@ -1,0 +1,147 @@
+namespace Satusehat.IntegrationSdk;
+
+public sealed class SatusehatSdk : IAsyncDisposable
+{
+    readonly SatusehatConfig c;
+    readonly SQLiteQueue q;
+    readonly TokenProvider tokens;
+    readonly FhirClient fhir;
+    readonly HttpClient http;
+    DateTimeOffset last = DateTimeOffset.MinValue;
+    readonly SemaphoreSlim rateGate = new(1, 1);
+
+    public SatusehatSdk(SatusehatConfig config)
+    {
+        config.Validate();
+        c = config;
+        q = new(config.QueuePath, config.ProcessingTimeoutSeconds);
+        http = new HttpClient { Timeout = TimeSpan.FromSeconds(config.TimeoutSeconds) };
+        tokens = new(config, http);
+        fhir = new(config, http, tokens);
+    }
+
+    public string Enqueue(string op, string rt, string? id = null, string? payload = null, string? idempotencyKey = null) =>
+        q.Enqueue(c.OrganizationId, op, rt, id, payload, idempotencyKey);
+
+    public IReadOnlyDictionary<EventStatus, int> QueueStats() => q.Stats();
+
+    public IReadOnlyList<QueueRecord> DeadLetters(int limit = 50) => q.DeadLetters(limit);
+
+    public bool Requeue(string eventId) => q.Requeue(eventId);
+
+    async Task Pace(CancellationToken ct)
+    {
+        await rateGate.WaitAsync(ct);
+        try
+        {
+            var interval = TimeSpan.FromMinutes(1.0 / c.RateLimitRpm);
+            var d = last + interval - DateTimeOffset.UtcNow;
+            if (d > TimeSpan.Zero)
+            {
+                await Task.Delay(d, ct);
+            }
+            last = DateTimeOffset.UtcNow;
+        }
+        finally
+        {
+            rateGate.Release();
+        }
+    }
+
+    public async Task<FhirResponse> RequestAsync(string op, string rt, string? id = null, string? payload = null, CancellationToken ct = default)
+    {
+        FhirResponse? lastR = null;
+        for (var a = 1; a <= c.MaxRetries; a++)
+        {
+            await Pace(ct);
+            try
+            {
+                lastR = await fhir.RequestOnceAsync(op, rt, id, payload, ct);
+            }
+            catch when (a < c.MaxRetries)
+            {
+                await Task.Delay(Backoff(a, null), ct);
+                continue;
+            }
+            if (lastR.StatusCode == 401)
+            {
+                tokens.Invalidate();
+            }
+            var (_, retry) = ErrorClassifier.Classify(lastR.StatusCode);
+            if (!retry || a >= c.MaxRetries)
+            {
+                return lastR;
+            }
+            lastR.Headers.TryGetValue("Retry-After", out var ra);
+            await Task.Delay(Backoff(a, ra), ct);
+        }
+        return lastR!;
+    }
+
+    public async Task<int> ProcessOnceAsync(int limit = 20, CancellationToken ct = default)
+    {
+        var rows = q.Ready(limit);
+        foreach (var e in rows)
+        {
+            var a = q.MarkProcessing(e.EventId);
+            await Pace(ct);
+            try
+            {
+                Apply(e.EventId, a, await fhir.RequestOnceAsync(e.Operation, e.ResourceType, e.ResourceId, e.PayloadJson, ct));
+            }
+            catch (Exception x)
+            {
+                Schedule(e.EventId, a, "transport_error", x.Message, null, null, EventStatus.RETRYING);
+            }
+        }
+        return rows.Count;
+    }
+
+    void Apply(string id, int a, FhirResponse r)
+    {
+        var (cat, retry) = ErrorClassifier.Classify(r.StatusCode);
+        if (r.StatusCode is >= 200 and <= 299)
+        {
+            q.Complete(id, EventStatus.SUCCESS, r.StatusCode);
+            return;
+        }
+        if (r.StatusCode == 401)
+        {
+            tokens.Invalidate();
+        }
+        if (retry)
+        {
+            r.Headers.TryGetValue("Retry-After", out var ra);
+            Schedule(id, a, cat, r.Body, r.StatusCode, ra, r.StatusCode == 429 ? EventStatus.RATE_LIMITED : EventStatus.RETRYING);
+            return;
+        }
+        q.Complete(id, EventStatus.WAITING_FOR_CORRECTION, r.StatusCode, cat, r.Body);
+    }
+
+    void Schedule(string id, int a, string cat, string msg, int? hs, string? ra, EventStatus target)
+    {
+        if (a >= c.MaxRetries)
+        {
+            q.Complete(id, EventStatus.DEAD_LETTER, hs, cat, msg);
+            return;
+        }
+        q.Complete(id, target, hs, cat, msg, DateTimeOffset.UtcNow.Add(Backoff(a, ra)).ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"));
+    }
+
+    TimeSpan Backoff(int a, string? ra)
+    {
+        if (double.TryParse(ra, out var sec) && sec >= 0)
+        {
+            return TimeSpan.FromSeconds(sec);
+        }
+        var b = Math.Min(c.MaxBackoffMs, c.InitialBackoffMs * Math.Pow(2, Math.Max(0, a - 1)));
+        return TimeSpan.FromMilliseconds(b + Random.Shared.NextDouble() * Math.Min(1000, b * .2));
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        http.Dispose();
+        rateGate.Dispose();
+        await q.DisposeAsync();
+    }
+}

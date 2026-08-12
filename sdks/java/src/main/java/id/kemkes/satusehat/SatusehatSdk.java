@@ -1,0 +1,131 @@
+package id.kemkes.satusehat;
+
+import java.net.http.HttpClient;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+
+public final class SatusehatSdk implements AutoCloseable {
+    private final SatusehatConfig c;
+    private final SQLiteQueue q;
+    private final TokenProvider tokens;
+    private final FhirClient fhir;
+    private long last = 0;
+
+    public SatusehatSdk(SatusehatConfig c) throws Exception {
+        this.c = c;
+        this.q = new SQLiteQueue(c.queuePath(), c.processingTimeoutSeconds());
+        var h = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(c.timeoutSeconds())).build();
+        tokens = new TokenProvider(c, h);
+        fhir = new FhirClient(c, h, tokens);
+    }
+
+    public String enqueue(String op, String rt, String id, String payload) throws Exception {
+        return q.enqueue(c.organizationId(), op, rt, id, payload, null);
+    }
+
+    public String enqueueIdempotent(String op, String rt, String id, String payload, String idempotencyKey) throws Exception {
+        return q.enqueue(c.organizationId(), op, rt, id, payload, idempotencyKey);
+    }
+
+    public Map<EventStatus, Integer> queueStats() throws Exception {
+        return q.stats();
+    }
+
+    public List<QueueRecord> deadLetters(int limit) throws Exception {
+        return q.deadLetters(limit);
+    }
+
+    public boolean requeue(String eventId) throws Exception {
+        return q.requeue(eventId);
+    }
+
+    private synchronized void pace() throws InterruptedException {
+        long interval = 60000L / c.rateLimitRpm();
+        long d = last + interval - System.currentTimeMillis();
+        if (d > 0) {
+            Thread.sleep(d);
+        }
+        last = System.currentTimeMillis();
+    }
+
+    public FhirResponse request(String op, String rt, String id, String payload) throws Exception {
+        FhirResponse lastR = null;
+        for (int a = 1; a <= c.maxRetries(); a++) {
+            pace();
+            try {
+                lastR = fhir.requestOnce(op, rt, id, payload);
+            } catch (Exception e) {
+                if (a >= c.maxRetries()) {
+                    throw e;
+                }
+                Thread.sleep(backoff(a, null));
+                continue;
+            }
+            if (lastR.statusCode() == 401) {
+                tokens.invalidate();
+            }
+            var x = ErrorClassifier.classify(lastR.statusCode());
+            if (!x.retryable() || a >= c.maxRetries()) {
+                return lastR;
+            }
+            Thread.sleep(backoff(a, lastR.headers().get("retry-after")));
+        }
+        return lastR;
+    }
+
+    public int processOnce(int limit) throws Exception {
+        var rows = q.ready(limit);
+        for (var e : rows) {
+            int a = q.markProcessing(e.eventId());
+            pace();
+            try {
+                apply(e.eventId(), a, fhir.requestOnce(e.operation(), e.resourceType(), e.resourceId(), e.payloadJson()));
+            } catch (Exception x) {
+                schedule(e.eventId(), a, "transport_error", x.getMessage(), null, null, EventStatus.RETRYING);
+            }
+        }
+        return rows.size();
+    }
+
+    private void apply(String id, int a, FhirResponse r) throws Exception {
+        var x = ErrorClassifier.classify(r.statusCode());
+        if (r.statusCode() >= 200 && r.statusCode() <= 299) {
+            q.complete(id, EventStatus.SUCCESS, r.statusCode(), null, null, null);
+            return;
+        }
+        if (r.statusCode() == 401) {
+            tokens.invalidate();
+        }
+        if (x.retryable()) {
+            schedule(id, a, x.category(), r.body(), r.statusCode(), r.headers().get("retry-after"), r.statusCode() == 429 ? EventStatus.RATE_LIMITED : EventStatus.RETRYING);
+            return;
+        }
+        q.complete(id, EventStatus.WAITING_FOR_CORRECTION, r.statusCode(), x.category(), r.body(), null);
+    }
+
+    private void schedule(String id, int a, String cat, String msg, Integer hs, String ra, EventStatus target) throws Exception {
+        if (a >= c.maxRetries()) {
+            q.complete(id, EventStatus.DEAD_LETTER, hs, cat, msg, null);
+            return;
+        }
+        q.complete(id, target, hs, cat, msg, Instant.now().plusMillis(backoff(a, ra)).toString());
+    }
+
+    private long backoff(int a, String ra) {
+        try {
+            if (ra != null) {
+                return Math.max(0, (long) (Double.parseDouble(ra) * 1000));
+            }
+        } catch (Exception ignored) {
+        }
+        long base = Math.min(c.maxBackoffMs(), (long) (c.initialBackoffMs() * Math.pow(2, Math.max(0, a - 1))));
+        return base + ThreadLocalRandom.current().nextLong(Math.max(1, Math.min(1000, base / 5 + 1)));
+    }
+
+    public void close() throws Exception {
+        q.close();
+    }
+}

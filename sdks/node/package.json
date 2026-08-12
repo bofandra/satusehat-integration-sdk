@@ -1,0 +1,47 @@
+{
+  "name": "@satusehat/integration-sdk",
+  "version": "0.1.0",
+  "description": "SATUSEHAT Integration SDK reference implementation for Node.js",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "files": [
+    "src",
+    "examples",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20 <23 || >=24 <25"
+  },
+  "scripts": {
+    "test": "node --test",
+    "build": "node --check src/index.js && node --check src/sdk.js && node --check src/queue.js"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "satusehat",
+    "fhir",
+    "healthcare",
+    "integration",
+    "sdk"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/satusehat-platform/integration-sdk.git",
+    "directory": "sdks/node"
+  },
+  "homepage": "https://github.com/satusehat-platform/integration-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/satusehat-platform/integration-sdk/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/satusehat-platform/integration-sdk"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3"
+  }
+}

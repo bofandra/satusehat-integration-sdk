@@ -1,0 +1,33 @@
+name: sandbox-contract
+
+on:
+  workflow_dispatch:
+    inputs:
+      enable_writes:
+        description: "Run optional non-PHI sandbox write fixture"
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+jobs:
+  sandbox-contract:
+    runs-on: ubuntu-latest
+    environment: satusehat-sandbox
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python SDK
+        run: python -m pip install -e sdks/python
+      - name: Run sandbox contract
+        env:
+          SATUSEHAT_ENV: sandbox
+          SATUSEHAT_CLIENT_ID: ${{ secrets.SATUSEHAT_SANDBOX_CLIENT_ID }}
+          SATUSEHAT_CLIENT_SECRET: ${{ secrets.SATUSEHAT_SANDBOX_CLIENT_SECRET }}
+          SATUSEHAT_ORGANIZATION_ID: ${{ secrets.SATUSEHAT_SANDBOX_ORGANIZATION_ID }}
+          SATUSEHAT_SANDBOX_ENABLE_WRITES: ${{ inputs.enable_writes }}
+        run: python tools/sandbox_contract.py
