@@ -1,4 +1,4 @@
-.PHONY: validate python node java php go dotnet sandbox-contract package-release
+.PHONY: validate python node java php go dotnet sandbox-contract sandbox-lab package-release
 
 validate: python node java php go dotnet
 	@echo "Offline validations completed."
@@ -23,6 +23,9 @@ dotnet:
 
 sandbox-contract:
 	PYTHONPATH=sdks/python/src python3 tools/sandbox_contract.py
+
+sandbox-lab:
+	tools/sandbox_lab_matrix.sh
 
 package-release:
 	mkdir -p dist

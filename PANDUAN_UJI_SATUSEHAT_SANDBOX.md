@@ -40,7 +40,10 @@ Resource yang sudah ada contoh/test live di repo:
 | `Location` | `tools/sandbox_clinical_matrix.sh` | Bagian clinical chain; membutuhkan organization credential. |
 | `Encounter` | `examples/fhir/encounter.json`, `tools/sandbox_clinical_matrix.sh` | Membutuhkan Patient, Practitioner, Location, dan Organization sandbox valid. |
 | `Condition` | `examples/fhir/condition.json`, `tools/sandbox_clinical_matrix.sh` | Membutuhkan Patient, Practitioner, dan Encounter valid. |
-| `Observation` | `tools/sandbox_clinical_matrix.sh` | Membutuhkan Patient, Practitioner, dan Encounter valid. |
+| `ServiceRequest` | `tools/sandbox_lab_matrix.sh` | Bagian lab panel chain; membutuhkan Patient, Practitioner, Encounter, Location, dan Organization sandbox valid. |
+| `Specimen` | `tools/sandbox_lab_matrix.sh` | Bagian lab panel chain; mereferensikan `ServiceRequest` sandbox yang dibuat script. |
+| `Observation` | `tools/sandbox_clinical_matrix.sh`, `tools/sandbox_lab_matrix.sh` | Clinical vital sign atau hasil lab panel; membutuhkan Patient, Practitioner, Encounter, dan untuk lab juga `ServiceRequest`/`Specimen` valid. |
+| `DiagnosticReport` | `tools/sandbox_lab_matrix.sh` | Bagian akhir lab panel chain; mereferensikan tiga `Observation` hasil elektrolit. |
 
 Operation yang didukung SDK:
 
@@ -54,7 +57,7 @@ Minimal untuk testing sandbox:
 
 - Akses internet ke host `api-satusehat-stg.dto.kemkes.go.id`.
 - Credential sandbox aktif.
-- Untuk clinical POST matrix: Patient dan Practitioner sandbox yang valid.
+- Untuk clinical dan lab POST matrix: Patient dan Practitioner sandbox yang valid.
 
 Runtime per SDK:
 
@@ -89,6 +92,7 @@ File yang akan dipakai di panduan ini:
 - `tools/sandbox_contract.py`: test kontrak read-only dan optional write ke SATUSEHAT sandbox.
 - `tools/sandbox_write_matrix.sh`: POST `Organization` lintas SDK.
 - `tools/sandbox_clinical_matrix.sh`: POST clinical chain lintas SDK.
+- `tools/sandbox_lab_matrix.sh`: POST lab panel chain lintas SDK.
 - `examples/fhir/encounter.json`: fixture FHIR contoh.
 - `examples/fhir/condition.json`: fixture FHIR contoh.
 
@@ -480,6 +484,71 @@ Jika runtime default tidak sesuai, override binary lewat environment variable:
 ```bash
 NODE_BIN=/path/to/node24 tools/sandbox_clinical_matrix.sh node
 PHP_BIN=/path/to/php8 tools/sandbox_clinical_matrix.sh php
+```
+
+### Lab Panel POST Matrix
+
+Matrix ini mengirim chain panel elektrolit lintas SDK dan membutuhkan Patient serta Practitioner sandbox yang valid. Script membuat `Location` dan `Encounter` sebagai prasyarat, lalu membuat `ServiceRequest`, `Specimen`, tiga `Observation`, dan `DiagnosticReport`.
+
+Command:
+
+```bash
+set -a
+source .env
+set +a
+
+make sandbox-lab
+```
+
+Atau jalankan script langsung:
+
+```bash
+tools/sandbox_lab_matrix.sh
+```
+
+Default platform yang dijalankan:
+
+- Python.
+- Node.js.
+- Go.
+- Java.
+- PHP.
+- .NET.
+
+Resource yang di-POST setiap platform:
+
+1. `Location`
+2. `Encounter`
+3. `ServiceRequest` untuk panel elektrolit LOINC `24326-1`
+4. `Specimen` serum yang mereferensikan `ServiceRequest`
+5. `Observation` natrium LOINC `2951-2`
+6. `Observation` kalium LOINC `2823-3`
+7. `Observation` klorida LOINC `2075-0`
+8. `DiagnosticReport` LOINC `24326-1` dengan tiga reference `Observation`
+
+Expected success message:
+
+```text
+All live SATUSEHAT sandbox lab validations passed.
+```
+
+Jika ingin menjalankan satu platform saja:
+
+```bash
+tools/sandbox_lab_matrix.sh python
+tools/sandbox_lab_matrix.sh node
+tools/sandbox_lab_matrix.sh go
+tools/sandbox_lab_matrix.sh java
+tools/sandbox_lab_matrix.sh php
+tools/sandbox_lab_matrix.sh dotnet
+```
+
+Jika runtime default tidak sesuai, override binary lewat environment variable:
+
+```bash
+NODE_BIN=/path/to/node24 tools/sandbox_lab_matrix.sh node
+PHP_BIN=/path/to/php8 tools/sandbox_lab_matrix.sh php
+JAVA_SQLITE_JDBC_JAR=/path/to/sqlite-jdbc.jar tools/sandbox_lab_matrix.sh java
 ```
 
 ## 10. Optional Single-Fixture Write Test dengan Python Contract Tool

@@ -13,6 +13,7 @@ This is a production release of the reference SDK project. It is not a Ministry/
 | Sandbox contract | Manual `sandbox-contract` workflow passes with official SATUSEHAT sandbox credentials and no production endpoints. |
 | Live write matrix | `tools/sandbox_write_matrix.sh` creates one non-PHI sandbox `Organization` through every SDK, or release owner records an approved exception. |
 | Clinical write matrix | `tools/sandbox_clinical_matrix.sh` creates approved sandbox `Location`, `Encounter`, `Condition`, and `Observation` resources through every SDK, or release owner records an approved exception. |
+| Lab panel write matrix | `tools/sandbox_lab_matrix.sh` creates approved sandbox `ServiceRequest`, `Specimen`, three lab `Observation` resources, and `DiagnosticReport` through every SDK, or release owner records an approved exception. |
 | Security | Manual/automatic `security` workflow passes, or exceptions are recorded with owner/date. |
 | Packaging | Dry-run package builds pass for every SDK ecosystem. |
 | Release artifacts | GitHub release contains release notes, artifacts where applicable, SBOM/checksum evidence, and rollback notes. |
@@ -61,6 +62,7 @@ This is a production release of the reference SDK project. It is not a Ministry/
 - SATUSEHAT sandbox contract tests.
 - SATUSEHAT live write matrix tests with non-PHI fixtures.
 - SATUSEHAT clinical write matrix tests with approved sandbox Patient/Practitioner fixtures.
+- SATUSEHAT lab panel write matrix tests with approved sandbox Patient/Practitioner fixtures.
 - Network timeout/reconnect tests.
 - 401/403/422/429/5xx tests.
 - Restart/recovery test with events pending in SQLite, including stale `PROCESSING` lease recovery.
