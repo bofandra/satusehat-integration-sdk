@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	satusehat "github.com/satusehat-platform/integration-sdk/sdks/go"
+	satusehat "github.com/bofandra/satusehat-integration-sdk/sdks/go"
 	"log"
 )
 

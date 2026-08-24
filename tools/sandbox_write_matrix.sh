@@ -127,9 +127,9 @@ module satusehat-live-write
 
 go 1.23
 
-require github.com/satusehat-platform/integration-sdk/sdks/go v0.0.0
+require github.com/bofandra/satusehat-integration-sdk/sdks/go v0.0.0
 
-replace github.com/satusehat-platform/integration-sdk/sdks/go => $ROOT/sdks/go
+replace github.com/bofandra/satusehat-integration-sdk/sdks/go => $ROOT/sdks/go
 EOF
   cat > "$go_dir/main.go" <<'GO'
 package main
@@ -141,7 +141,7 @@ import (
 	"os"
 	"time"
 
-	satusehat "github.com/satusehat-platform/integration-sdk/sdks/go"
+	satusehat "github.com/bofandra/satusehat-integration-sdk/sdks/go"
 )
 
 func main() {

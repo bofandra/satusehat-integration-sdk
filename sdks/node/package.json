@@ -1,6 +1,6 @@
 {
   "name": "@satusehat/integration-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SATUSEHAT Integration SDK reference implementation for Node.js",
   "type": "module",
   "main": "src/index.js",
@@ -30,16 +30,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/satusehat-platform/integration-sdk.git",
+    "url": "https://github.com/bofandra/satusehat-integration-sdk.git",
     "directory": "sdks/node"
   },
-  "homepage": "https://github.com/satusehat-platform/integration-sdk#readme",
+  "homepage": "https://github.com/bofandra/satusehat-integration-sdk#readme",
   "bugs": {
-    "url": "https://github.com/satusehat-platform/integration-sdk/issues"
+    "url": "https://github.com/bofandra/satusehat-integration-sdk/issues"
   },
   "funding": {
     "type": "github",
-    "url": "https://github.com/satusehat-platform/integration-sdk"
+    "url": "https://github.com/bofandra/satusehat-integration-sdk"
   },
   "dependencies": {
     "better-sqlite3": "13.0.3"

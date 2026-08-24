@@ -101,6 +101,59 @@
         "null"
       ],
       "format": "date-time"
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "parent_event_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "source_system": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_record_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "disposition": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error_details": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "completed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "superseded_by_event_id": {
+      "type": [
+        "string",
+        "null"
+      ]
     }
   }
 }

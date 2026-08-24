@@ -2,10 +2,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>id.kemkes.satusehat</groupId>
   <artifactId>integration-sdk</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <name>SATUSEHAT Integration SDK</name>
   <description>SATUSEHAT Integration SDK reference implementation for Java.</description>
-  <url>https://github.com/satusehat-platform/integration-sdk</url>
+  <url>https://github.com/bofandra/satusehat-integration-sdk</url>
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -19,9 +19,9 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:https://github.com/satusehat-platform/integration-sdk.git</connection>
-    <developerConnection>scm:git:https://github.com/satusehat-platform/integration-sdk.git</developerConnection>
-    <url>https://github.com/satusehat-platform/integration-sdk</url>
+    <connection>scm:git:https://github.com/bofandra/satusehat-integration-sdk.git</connection>
+    <developerConnection>scm:git:https://github.com/bofandra/satusehat-integration-sdk.git</developerConnection>
+    <url>https://github.com/bofandra/satusehat-integration-sdk</url>
   </scm>
   <properties><maven.compiler.release>21</maven.compiler.release><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
   <dependencies>

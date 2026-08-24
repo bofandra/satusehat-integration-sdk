@@ -4,7 +4,7 @@ This repository publishes an official production-ready reference SDK for SATUSEH
 
 ## Release gates
 
-Before tagging `v0.1.0`, the maintainer must record evidence in `VALIDATION.md` for:
+Before tagging `v0.2.0`, the maintainer must record evidence in `VALIDATION.md` for:
 
 - `ci` workflow pass;
 - `security` workflow pass or approved exceptions;
@@ -35,15 +35,15 @@ Maven Central publication additionally requires the repository owner's selected 
 ## Tagging
 
 ```bash
-git tag -a v0.1.0 -m "SATUSEHAT Integration SDK v0.1.0"
-git push origin v0.1.0
-git tag -a sdks/go/v0.1.0 -m "SATUSEHAT Integration SDK Go v0.1.0"
-git push origin sdks/go/v0.1.0
+git tag -a v0.2.0 -m "SATUSEHAT Integration SDK v0.2.0"
+git push origin v0.2.0
+git tag -a sdks/go/v0.2.0 -m "SATUSEHAT Integration SDK Go v0.2.0"
+git push origin sdks/go/v0.2.0
 ```
 
 ## Publishing
 
-Run the manual `release` workflow from tag `v0.1.0` with `publish=false`. After artifacts and checksums are verified, rerun from the same tag with `publish=true`.
+Run the manual `release` workflow from tag `v0.2.0` with `publish=false`. After artifacts and checksums are verified, rerun from the same tag with `publish=true`.
 
 Go module discovery publishes from the public Git tags. Packagist is refreshed through its update-package API. Maven publication uses `MAVEN_DEPLOY_REPOSITORY` so the repository owner can choose Central Portal/OSSRH without hard-coding a vendor endpoint in source.
 

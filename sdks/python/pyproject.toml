@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "satusehat-integration-sdk"
-version = "0.1.0"
+version = "0.2.0"
 description = "SATUSEHAT Integration SDK reference implementation"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,11 +24,11 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/satusehat-platform/integration-sdk"
-Repository = "https://github.com/satusehat-platform/integration-sdk"
-Issues = "https://github.com/satusehat-platform/integration-sdk/issues"
-Changelog = "https://github.com/satusehat-platform/integration-sdk/blob/main/CHANGELOG.md"
-Security = "https://github.com/satusehat-platform/integration-sdk/security"
+Homepage = "https://github.com/bofandra/satusehat-integration-sdk"
+Repository = "https://github.com/bofandra/satusehat-integration-sdk"
+Issues = "https://github.com/bofandra/satusehat-integration-sdk/issues"
+Changelog = "https://github.com/bofandra/satusehat-integration-sdk/blob/main/CHANGELOG.md"
+Security = "https://github.com/bofandra/satusehat-integration-sdk/security"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

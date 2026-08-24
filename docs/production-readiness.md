@@ -1,12 +1,12 @@
 # Production Readiness Status
 
-The repository is ready to publish as an **official production-ready reference SDK v0.1.0** after the required release evidence below is attached to the GitHub release.
+The repository is ready to publish as an **reference SDK v0.2.0** after the required release evidence below is attached to the GitHub release.
 
 This is a production release of the reference SDK project. It is not a Ministry/Kementerian Kesehatan official SDK unless a separate governance decision transfers ownership and branding authority.
 
 ## Required release evidence
 
-| Gate | Required evidence before `v0.1.0` publish |
+| Gate | Required evidence before `v0.2.0` publish |
 |---|---|
 | Governance | Repository owner, maintainer team, security reporting route, license/NOTICE owner, and public package namespace ownership are confirmed. |
 | CI | GitHub Actions `ci` passes for Python, Go, Node.js 20/22/24, Java 21, PHP 8.3, and .NET 8. |
@@ -20,8 +20,8 @@ This is a production release of the reference SDK project. It is not a Ministry/
 
 ## Governance
 
-- GitHub repository: `github.com/satusehat-platform/integration-sdk`.
-- Default maintainer team: `@satusehat-platform/integration-sdk-maintainers`.
+- GitHub repository: `github.com/bofandra/satusehat-integration-sdk`.
+- Default maintainer team: `@bofandra`.
 - Copyright holder: `SATUSEHAT Integration SDK Contributors`.
 - Supported production reference line: `0.1.x`.
 - Patch releases are for bug fixes, security fixes, packaging fixes, and documentation corrections.

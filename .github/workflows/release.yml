@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release tag, for example v0.1.0"
+        description: "Release tag, for example v0.2.0"
         required: true
-        default: "v0.1.0"
+        default: "v0.2.0"
       publish:
         description: "Publish to external registries"
         required: true
@@ -26,8 +26,8 @@ jobs:
       - id: guard
         shell: bash
         run: |
-          if [[ "${{ inputs.version }}" != "v0.1.0" ]]; then
-            echo "This workflow is pinned to v0.1.0 for the first production reference release." >&2
+          if [[ "${{ inputs.version }}" != "v0.2.0" ]]; then
+            echo "This workflow is pinned to v0.2.0 for the monitoring and correction workflow release." >&2
             exit 1
           fi
           if [[ "${{ inputs.confirmation }}" != "official-production-reference-release" ]]; then
@@ -86,7 +86,7 @@ jobs:
           npm pack --pack-destination ../../dist
           cd ../java
           mvn -B -Prelease -Dgpg.skip=true package
-          cp target/integration-sdk-0.1.0*.jar ../../dist/
+          cp target/integration-sdk-0.2.0*.jar ../../dist/
           cd ../php
           composer validate --strict
           composer install
@@ -101,7 +101,7 @@ jobs:
           sha256sum dist/* > dist/SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
-          name: satusehat-integration-sdk-v0.1.0
+          name: satusehat-integration-sdk-v0.2.0
           path: dist/
 
   publish-npm:
@@ -162,12 +162,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: satusehat-integration-sdk-v0.1.0
+          name: satusehat-integration-sdk-v0.2.0
           path: dist
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.1.0
-          name: SATUSEHAT Integration SDK v0.1.0
+          tag_name: v0.2.0
+          name: SATUSEHAT Integration SDK v0.2.0
           body_path: CHANGELOG.md
           files: dist/*
 
@@ -214,4 +214,4 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${PACKAGIST_USERNAME}:${PACKAGIST_API_TOKEN}" \
             https://packagist.org/api/update-package \
-            -d '{"repository":"https://github.com/satusehat-platform/integration-sdk"}'
+            -d '{"repository":"https://github.com/bofandra/satusehat-integration-sdk"}'

@@ -6,7 +6,7 @@ This repository publishes an **official production-ready reference SDK**, not an
 
 Before publication, confirm:
 
-- repository organization and URL: `github.com/satusehat-platform/integration-sdk`;
+- repository organization and URL: `github.com/bofandra/satusehat-integration-sdk`;
 - package registry namespaces listed in `README.md`;
 - copyright/NOTICE owner;
 - maintainer/security contact;
@@ -61,20 +61,20 @@ The sandbox workflow must pass using official sandbox credentials and must not u
 After all gates pass and `VALIDATION.md` contains the evidence:
 
 ```bash
-git tag -a v0.1.0 -m "SATUSEHAT Integration SDK v0.1.0"
-git push origin v0.1.0
+git tag -a v0.2.0 -m "SATUSEHAT Integration SDK v0.2.0"
+git push origin v0.2.0
 ```
 
 The Go SDK lives in a subdirectory module, so also push:
 
 ```bash
-git tag -a sdks/go/v0.1.0 -m "SATUSEHAT Integration SDK Go v0.1.0"
-git push origin sdks/go/v0.1.0
+git tag -a sdks/go/v0.2.0 -m "SATUSEHAT Integration SDK Go v0.2.0"
+git push origin sdks/go/v0.2.0
 ```
 
 ## 6. Publish
 
-Run the manual `release` workflow from the `v0.1.0` tag. Keep `publish=false` for the final dry run, then rerun with `publish=true` only after registry ownership is confirmed.
+Run the manual `release` workflow from the `v0.2.0` tag. Keep `publish=false` for the final dry run, then rerun with `publish=true` only after registry ownership is confirmed.
 
 Manual registry commands, if needed:
 

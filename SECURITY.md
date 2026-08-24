@@ -4,7 +4,7 @@
 
 Do not open a public issue containing API credentials, patient data, security tokens, or exploitable vulnerability details.
 
-For the official reference release repository, report vulnerabilities through GitHub private vulnerability reporting for `github.com/satusehat-platform/integration-sdk`. If private reporting is not enabled, contact the repository owner through the public maintainer channel and share only non-sensitive coordination details until a private channel is established.
+For the official reference release repository, report vulnerabilities through GitHub private vulnerability reporting for `github.com/bofandra/satusehat-integration-sdk`. If private reporting is not enabled, contact the repository owner through the public maintainer channel and share only non-sensitive coordination details until a private channel is established.
 
 ## Supported Versions
 

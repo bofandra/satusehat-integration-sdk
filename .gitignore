@@ -15,3 +15,7 @@ bin/
 obj/
 vendor/
 coverage/
+sdks/python/build/
+sdks/python/src/*.egg-info/
+__pycache__/
+*.pyc

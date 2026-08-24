@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"SATUSEHAT Integration Correction Submission","type":"object","required":["payload"],"properties":{"idempotency_key":{"type":["string","null"]},"resource_id":{"type":["string","null"]},"payload":{"type":"object","required":["resourceType"]}},"additionalProperties":false}

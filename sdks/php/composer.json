@@ -4,11 +4,11 @@
   "type": "library",
   "license": "Apache-2.0",
   "keywords": ["satusehat", "fhir", "healthcare", "integration", "sdk"],
-  "homepage": "https://github.com/satusehat-platform/integration-sdk",
+  "homepage": "https://github.com/bofandra/satusehat-integration-sdk",
   "authors": [{"name": "SATUSEHAT Integration SDK Contributors"}],
   "support": {
-    "issues": "https://github.com/satusehat-platform/integration-sdk/issues",
-    "source": "https://github.com/satusehat-platform/integration-sdk"
+    "issues": "https://github.com/bofandra/satusehat-integration-sdk/issues",
+    "source": "https://github.com/bofandra/satusehat-integration-sdk"
   },
   "require": {"php": ">=8.2", "ext-curl": "*", "ext-pdo": "*", "ext-pdo_sqlite": "*"},
   "autoload": {"psr-4": {"Satusehat\\IntegrationSdk\\": "src/"}},

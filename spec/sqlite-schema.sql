@@ -1,33 +1,11 @@
 PRAGMA journal_mode=WAL;
 PRAGMA foreign_keys=ON;
-
-CREATE TABLE IF NOT EXISTS integration_events (
-  event_id TEXT PRIMARY KEY,
-  organization_id TEXT NOT NULL,
-  idempotency_key TEXT,
-  operation TEXT NOT NULL CHECK(operation IN ('GET','POST','PUT','PATCH')),
-  resource_type TEXT NOT NULL,
-  resource_id TEXT,
-  payload_json TEXT,
-  status TEXT NOT NULL CHECK(status IN (
-    'QUEUED','PROCESSING','SUCCESS','WAITING_FOR_CORRECTION',
-    'RATE_LIMITED','RETRYING','DEAD_LETTER','CANCELLED'
-  )),
-  attempt INTEGER NOT NULL DEFAULT 0,
-  http_status INTEGER,
-  error_category TEXT,
-  error_message TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
-  next_retry_at TEXT
-);
-
-CREATE INDEX IF NOT EXISTS idx_integration_events_ready
-ON integration_events(status, next_retry_at, created_at);
-
-CREATE INDEX IF NOT EXISTS idx_integration_events_resource
-ON integration_events(resource_type, resource_id);
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_integration_events_idempotency
-ON integration_events(organization_id, idempotency_key)
-WHERE idempotency_key IS NOT NULL;
+CREATE TABLE IF NOT EXISTS integration_events(event_id TEXT PRIMARY KEY,organization_id TEXT NOT NULL,idempotency_key TEXT,operation TEXT NOT NULL CHECK(operation IN ('GET','POST','PUT','PATCH')),resource_type TEXT NOT NULL,resource_id TEXT,payload_json TEXT,status TEXT NOT NULL CHECK(status IN ('QUEUED','PROCESSING','SUCCESS','WAITING_FOR_CORRECTION','RATE_LIMITED','RETRYING','DEAD_LETTER','CANCELLED')),attempt INTEGER NOT NULL DEFAULT 0,http_status INTEGER,error_category TEXT,error_message TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,next_retry_at TEXT,correlation_id TEXT,parent_event_id TEXT,revision INTEGER NOT NULL DEFAULT 1,source_system TEXT,source_record_id TEXT,disposition TEXT,error_details_json TEXT,completed_at TEXT,superseded_by_event_id TEXT);
+CREATE INDEX IF NOT EXISTS idx_integration_events_ready ON integration_events(status,next_retry_at,created_at);
+CREATE INDEX IF NOT EXISTS idx_integration_events_resource ON integration_events(resource_type,resource_id);
+CREATE INDEX IF NOT EXISTS idx_integration_events_correlation ON integration_events(correlation_id,revision);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_integration_events_idempotency ON integration_events(organization_id,idempotency_key) WHERE idempotency_key IS NOT NULL;
+CREATE TABLE IF NOT EXISTS integration_event_history(history_id TEXT PRIMARY KEY,event_id TEXT NOT NULL,status TEXT NOT NULL,attempt INTEGER NOT NULL DEFAULT 0,http_status INTEGER,error_category TEXT,error_message TEXT,observed_updated_at TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(event_id,status,attempt,observed_updated_at));
+CREATE INDEX IF NOT EXISTS idx_event_history_event ON integration_event_history(event_id,created_at);
+CREATE TABLE IF NOT EXISTS integration_notifications(notification_id TEXT PRIMARY KEY,event_id TEXT NOT NULL,event_type TEXT NOT NULL,destination TEXT,payload_json TEXT NOT NULL,status TEXT NOT NULL,attempt INTEGER NOT NULL DEFAULT 0,http_status INTEGER,error_message TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,next_retry_at TEXT,delivered_at TEXT,UNIQUE(event_id,event_type));
+CREATE INDEX IF NOT EXISTS idx_notifications_ready ON integration_notifications(status,next_retry_at,created_at);

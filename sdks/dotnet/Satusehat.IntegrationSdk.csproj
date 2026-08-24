@@ -5,14 +5,14 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>Satusehat.IntegrationSdk</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>SATUSEHAT Integration SDK Contributors</Authors>
     <Description>SATUSEHAT Integration SDK reference implementation for .NET.</Description>
     <PackageTags>satusehat;fhir;healthcare;integration;sdk</PackageTags>
-    <PackageReleaseNotes>Official production-ready reference SDK v0.1.0.</PackageReleaseNotes>
+    <PackageReleaseNotes>Official production-ready reference SDK v0.2.0.</PackageReleaseNotes>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/satusehat-platform/integration-sdk</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/satusehat-platform/integration-sdk</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/bofandra/satusehat-integration-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bofandra/satusehat-integration-sdk</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <NoWarn>$(NoWarn);1591</NoWarn>

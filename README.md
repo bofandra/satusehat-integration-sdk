@@ -2,7 +2,7 @@
 
 Reference implementation open-source untuk membantu SIMRS, SIMPUS, HIS, EMR, LIS, RIS, dan aplikasi fasyankes terhubung ke API FHIR SATUSEHAT dengan pola yang konsisten, aman, dapat di-retry, dan dapat dimonitor.
 
-> **Status:** official production-ready reference SDK v0.1.0 untuk publikasi GitHub/package registry. Repo ini bukan rilis resmi Kementerian Kesehatan sampai ditetapkan melalui proses governance/release resmi.
+> **Status:** reference implementation v0.2.0. Repo ini bersifat open-source/community reference dan bukan rilis resmi Kementerian Kesehatan sampai ditetapkan melalui proses governance/release resmi.
 
 ## Tujuan
 
@@ -21,6 +21,9 @@ SDK ini mengurangi pekerjaan berulang di setiap vendor dengan menyediakan kompon
 - Idempotency key opsional untuk mencegah duplicate enqueue dari retry publisher.
 - Audit metadata tanpa wajib menyimpan telemetry klinis eksternal.
 - Kontrak SDK yang seragam di beberapa bahasa.
+- Optional **Integration Console** untuk dashboard monitoring lintas SDK.
+- Durable webhook ke sistem klien saat data perlu dikoreksi.
+- Correction API yang membuat event/revision baru tanpa menimpa payload gagal.
 
 ## Bahasa yang tersedia
 
@@ -37,7 +40,7 @@ Semua SDK memakai struktur konfigurasi, status event, tabel queue, serta kebijak
 
 ## Release identity
 
-Rilis v0.1.0 adalah rilis produksi untuk **reference SDK** ini. Integrator fasyankes dapat memakai SDK ini sebagai library integrasi SATUSEHAT, dengan tetap mengikuti dokumentasi resmi SATUSEHAT sebagai source of truth.
+v0.2.0 menambahkan monitoring, webhook ke sistem klien, dan correction workflow di atas core SDK. Integrator fasyankes tetap harus mengikuti dokumentasi resmi SATUSEHAT sebagai source of truth.
 
 Package/namespace release:
 
@@ -46,7 +49,7 @@ Package/namespace release:
 - Maven: `id.kemkes.satusehat:integration-sdk`
 - Packagist: `satusehat/integration-sdk`
 - NuGet: `Satusehat.IntegrationSdk`
-- Go: `github.com/satusehat-platform/integration-sdk/sdks/go`
+- Go: `github.com/bofandra/satusehat-integration-sdk/sdks/go`
 
 Sebelum package dipublikasikan ke registry publik, maintainer wajib memastikan ownership namespace/package registry, branding, dan release authority sesuai `docs/production-readiness.md` dan `RELEASE.md`.
 
@@ -92,6 +95,23 @@ Alur rekomendasi adalah **enqueue terlebih dahulu**, bukan membuat transaksi pel
 ```
 
 Untuk jaminan atomicity penuh antara database SIMRS dan SDK, integrator dianjurkan menerapkan **Transactional Outbox** pada database aplikasi, lalu publisher memindahkan event ke SDK queue. Lihat `docs/architecture.md`. Penjelasan tanggung jawab setiap file/komponen lintas bahasa tersedia di `docs/code-structure.md`.
+
+## Monitoring & correction loop (v0.2)
+
+```text
+SATUSEHAT --400/422--> WAITING_FOR_CORRECTION
+                           |
+                           v
+                 Integration Console
+                  | dashboard | webhook -> SIMRS
+                  |                    corrected FHIR
+                  +<-- POST /corrections <---+
+                           |
+                           v
+                    new revision QUEUED
+```
+
+Run `SATUSEHAT_QUEUE_PATH=./satusehat-sdk.db python3 services/console/server.py` and open `http://127.0.0.1:8787`. See `docs/monitoring-corrections.md`.
 
 ---
 

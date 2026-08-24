@@ -1,6 +1,6 @@
-.PHONY: validate python node java php go dotnet sandbox-contract sandbox-lab package-release
+.PHONY: validate python node java php go dotnet console-test console sandbox-contract sandbox-lab package-release
 
-validate: python node java php go dotnet
+validate: python node java php go dotnet console-test
 	@echo "Offline validations completed."
 
 python:
@@ -21,6 +21,12 @@ go:
 dotnet:
 	cd sdks/dotnet && dotnet build
 
+console-test:
+	python3 -m unittest tests/test_console.py -v
+
+console:
+	python3 services/console/server.py
+
 sandbox-contract:
 	PYTHONPATH=sdks/python/src python3 tools/sandbox_contract.py
 
@@ -31,5 +37,5 @@ package-release:
 	mkdir -p dist
 	cd sdks/python && python3 -m build && cp dist/* ../../dist/
 	cd sdks/node && npm pack --pack-destination ../../dist
-	cd sdks/java && mvn -Prelease -Dgpg.skip=true package && cp target/integration-sdk-0.1.0*.jar ../../dist/
+	cd sdks/java && mvn -Prelease -Dgpg.skip=true package && cp target/integration-sdk-0.2.0*.jar ../../dist/
 	cd sdks/dotnet && dotnet pack -c Release && cp bin/Release/*.nupkg ../../dist/
