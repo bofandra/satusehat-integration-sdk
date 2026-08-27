@@ -67,6 +67,11 @@ jobs:
           php-version: "8.3"
           tools: composer
           extensions: curl, pdo_sqlite, sqlite3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: sdks/ruby
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
@@ -91,6 +96,10 @@ jobs:
           composer validate --strict
           composer install
           composer test
+          cd ../ruby
+          bundle exec rake test
+          gem build satusehat-integration-sdk.gemspec
+          cp satusehat-integration-sdk-*.gem ../../dist/
           cd ../go
           go test ./...
           cd ../dotnet
@@ -215,3 +224,20 @@ jobs:
             -H "Authorization: Bearer ${PACKAGIST_USERNAME}:${PACKAGIST_API_TOKEN}" \
             https://packagist.org/api/update-package \
             -d '{"repository":"https://github.com/bofandra/satusehat-integration-sdk"}'
+
+  publish-rubygems:
+    runs-on: ubuntu-latest
+    needs: [guard, package]
+    if: needs.guard.outputs.publish == 'true'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: sdks/ruby
+      - run: cd sdks/ruby && gem build satusehat-integration-sdk.gemspec && gem push satusehat-integration-sdk-*.gem
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}

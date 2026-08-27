@@ -4,15 +4,15 @@ Walaupun mengikuti idiom masing-masing bahasa, semua SDK memakai pemisahan tangg
 
 ## Peta komponen lintas bahasa
 
-| Tanggung jawab | Go | Java | Node.js | Python | PHP | .NET |
-|---|---|---|---|---|---|---|
-| Konfigurasi | `config.go` | `SatusehatConfig.java` | `src/config.js` | `config.py` | `Config.php` | `SatusehatConfig.cs` |
-| Status/model | `models.go` | `EventStatus.java`, `FhirResponse.java` | `src/errors.js`, `index.d.ts` | `models.py` | `EventStatus.php` | `Models.cs` |
-| Error classification | `errors.go` | `ErrorClassifier.java` | `src/errors.js` | `errors.py` | `ErrorClassifier.php` | `ErrorClassifier.cs` |
-| OAuth token | `auth.go` | `TokenProvider.java` | `src/auth.js` | `auth.py` | `TokenProvider.php` | `TokenProvider.cs` |
-| FHIR HTTP | `http.go` | `FhirClient.java` | `src/http.js` | `http.py` | `FhirClient.php` | `FhirClient.cs` |
-| SQLite queue | `queue.go` | `SQLiteQueue.java` | `src/queue.js` | `queue.py` | `SQLiteQueue.php` | `SQLiteQueue.cs` |
-| Orchestrator/worker | `sdk.go` | `SatusehatSdk.java` | `src/sdk.js` | `sdk.py` | `SatusehatSdk.php` | `SatusehatSdk.cs` |
+| Tanggung jawab | Go | Java | Node.js | Python | Ruby | PHP | .NET |
+|---|---|---|---|---|---|---|---|
+| Konfigurasi | `config.go` | `SatusehatConfig.java` | `src/config.js` | `config.py` | `config.rb` | `Config.php` | `SatusehatConfig.cs` |
+| Status/model | `models.go` | `EventStatus.java`, `FhirResponse.java` | `src/errors.js`, `index.d.ts` | `models.py` | `event_status.rb`, `models.rb` | `EventStatus.php` | `Models.cs` |
+| Error classification | `errors.go` | `ErrorClassifier.java` | `src/errors.js` | `errors.py` | `error_classifier.rb` | `ErrorClassifier.php` | `ErrorClassifier.cs` |
+| OAuth token | `auth.go` | `TokenProvider.java` | `src/auth.js` | `auth.py` | `token_provider.rb` | `TokenProvider.php` | `TokenProvider.cs` |
+| FHIR HTTP | `http.go` | `FhirClient.java` | `src/http.js` | `http.py` | `fhir_client.rb` | `FhirClient.php` | `FhirClient.cs` |
+| SQLite queue | `queue.go` | `SQLiteQueue.java` | `src/queue.js` | `queue.py` | `sqlite_queue.rb` | `SQLiteQueue.php` | `SQLiteQueue.cs` |
+| Orchestrator/worker | `sdk.go` | `SatusehatSdk.java` | `src/sdk.js` | `sdk.py` | `client.rb` | `SatusehatSdk.php` | `SatusehatSdk.cs` |
 
 ## Config
 

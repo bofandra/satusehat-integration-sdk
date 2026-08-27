@@ -47,6 +47,17 @@ jobs:
         with: { php-version: '8.3', tools: composer, extensions: curl, pdo_sqlite, sqlite3 }
       - run: cd sdks/php && composer install && composer test
 
+  ruby:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: sdks/ruby
+      - run: cd sdks/ruby && bundle exec rake test
+
   dotnet:
     runs-on: ubuntu-latest
     steps:

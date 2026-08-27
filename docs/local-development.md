@@ -47,7 +47,15 @@ go mod tidy
 go run ./examples/basic
 ```
 
-The other SDKs can use the same two override URLs. Follow their SDK README/build commands, then call `enqueue` + `processOnce` with any sanitized FHIR JSON.
+### Ruby
+
+```bash
+cd sdks/ruby
+bundle install
+ruby -Ilib examples/basic.rb
+```
+
+The other SDKs can use the same two override URLs. Follow their SDK README/build commands, then call `enqueue` + `processOnce`/`process_once` with any sanitized FHIR JSON.
 
 ## Simulating errors
 

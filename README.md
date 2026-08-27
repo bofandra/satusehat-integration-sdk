@@ -33,6 +33,7 @@ SDK ini mengurangi pekerjaan berulang di setiap vendor dengan menyediakan kompon
 | Java | `sdks/java` | `id.kemkes.satusehat` | SQLite | Ya | Ya | Ya |
 | Node.js / TypeScript | `sdks/node` | `@satusehat/integration-sdk` | SQLite | Ya | Ya | Ya |
 | Python | `sdks/python` | `satusehat_sdk` | SQLite | Ya | Ya | Ya |
+| Ruby | `sdks/ruby` | `satusehat-integration-sdk` | SQLite | Ya | Ya | Ya |
 | PHP | `sdks/php` | `satusehat/integration-sdk` | SQLite/PDO | Ya | Ya | Ya |
 | .NET / C# | `sdks/dotnet` | `Satusehat.IntegrationSdk` | SQLite | Ya | Ya | Ya |
 
@@ -46,6 +47,7 @@ Package/namespace release:
 
 - npm: `@satusehat/integration-sdk`
 - PyPI: `satusehat-integration-sdk`
+- RubyGems: `satusehat-integration-sdk`
 - Maven: `id.kemkes.satusehat:integration-sdk`
 - Packagist: `satusehat/integration-sdk`
 - NuGet: `Satusehat.IntegrationSdk`
@@ -189,6 +191,7 @@ satusehat-integration-sdk/
     ├── java/
     ├── node/
     ├── python/
+    ├── ruby/
     ├── php/
     └── dotnet/
 ```
@@ -375,6 +378,28 @@ sdk = SatusehatSdk(SatusehatConfig.from_env())
 event_id = sdk.enqueue("POST", "Encounter", payload=encounter, idempotency_key="encounter:local-visit-123:create")
 sdk.process_once(limit=20)
 sdk.close()
+```
+
+## Ruby
+
+```bash
+cd sdks/ruby
+bundle install
+bundle exec rake test
+```
+
+```ruby
+require "satusehat_sdk"
+
+sdk = Satusehat::IntegrationSdk::Client.new(Satusehat::IntegrationSdk::Config.from_env)
+event_id = sdk.enqueue(
+    "POST",
+    "Encounter",
+    payload: {"resourceType" => "Encounter"},
+    idempotency_key: "encounter:local-visit-123:create"
+)
+sdk.process_once(20)
+sdk.close
 ```
 
 ## PHP

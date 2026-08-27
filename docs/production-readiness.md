@@ -9,7 +9,7 @@ This is a production release of the reference SDK project. It is not a Ministry/
 | Gate | Required evidence before `v0.2.0` publish |
 |---|---|
 | Governance | Repository owner, maintainer team, security reporting route, license/NOTICE owner, and public package namespace ownership are confirmed. |
-| CI | GitHub Actions `ci` passes for Python, Go, Node.js 20/22/24, Java 21, PHP 8.3, and .NET 8. |
+| CI | GitHub Actions `ci` passes for Python, Go, Node.js 20/22/24, Java 21, PHP 8.3, Ruby 3.3, and .NET 8. |
 | Sandbox contract | Manual `sandbox-contract` workflow passes with official SATUSEHAT sandbox credentials and no production endpoints. |
 | Live write matrix | `tools/sandbox_write_matrix.sh` creates one non-PHI sandbox `Organization` through every SDK, or release owner records an approved exception. |
 | Clinical write matrix | `tools/sandbox_clinical_matrix.sh` creates approved sandbox `Location`, `Encounter`, `Condition`, and `Observation` resources through every SDK, or release owner records an approved exception. |

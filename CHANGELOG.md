@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Ruby reference SDK added with OAuth2, FHIR HTTP, canonical SQLite queue schema, idempotent enqueue, retry/backoff, rate limiting, dead-letter/requeue primitives, and Minitest coverage.
+
 ## 0.2.0 - 2026-08-23
 - language-neutral Integration Console and responsive dashboard;
 - correction worklist from shared SQLite queue;

@@ -11,7 +11,7 @@ Before tagging `v0.2.0`, the maintainer must record evidence in `VALIDATION.md` 
 - `sandbox-contract` workflow pass with official SATUSEHAT sandbox credentials;
 - `tools/sandbox_write_matrix.sh` pass, or an approved decision to skip live write testing for that release;
 - `tools/sandbox_clinical_matrix.sh` pass with approved sandbox Patient/Practitioner fixtures, or an approved decision to skip patient-linked sandbox testing;
-- registry ownership confirmation for npm, PyPI, Maven, Packagist, NuGet, and Go;
+- registry ownership confirmation for npm, PyPI, RubyGems, Maven, Packagist, NuGet, and Go;
 - `release` workflow dry run with `publish=false`.
 
 ## Required GitHub secrets
@@ -21,6 +21,7 @@ Before tagging `v0.2.0`, the maintainer must record evidence in `VALIDATION.md` 
 - `SATUSEHAT_SANDBOX_ORGANIZATION_ID`
 - `NPM_TOKEN`
 - `PYPI_API_TOKEN`
+- `RUBYGEMS_API_KEY`
 - `NUGET_API_KEY`
 - `PACKAGIST_USERNAME`
 - `PACKAGIST_API_TOKEN`
@@ -45,13 +46,14 @@ git push origin sdks/go/v0.2.0
 
 Run the manual `release` workflow from tag `v0.2.0` with `publish=false`. After artifacts and checksums are verified, rerun from the same tag with `publish=true`.
 
-Go module discovery publishes from the public Git tags. Packagist is refreshed through its update-package API. Maven publication uses `MAVEN_DEPLOY_REPOSITORY` so the repository owner can choose Central Portal/OSSRH without hard-coding a vendor endpoint in source.
+Go module discovery publishes from the public Git tags. RubyGems publication uses `RUBYGEMS_API_KEY`. Packagist is refreshed through its update-package API. Maven publication uses `MAVEN_DEPLOY_REPOSITORY` so the repository owner can choose Central Portal/OSSRH without hard-coding a vendor endpoint in source.
 
 ## Rollback
 
 - Prefer publishing a patch release over deleting immutable public versions.
 - Deprecate npm versions that should no longer be used.
 - Yank PyPI versions only when appropriate.
+- Yank RubyGems versions only when appropriate; otherwise publish a fixed patch version.
 - Deprecate NuGet packages when a release is superseded.
 - For Maven, publish a fixed patch version and mark the bad version in release notes.
 - Delete a Git tag only if it exposes secrets or legally sensitive material.

@@ -13,7 +13,8 @@ java:
 	cd sdks/java && mvn test
 
 php:
-	find sdks/php -name '*.php' -print0 | xargs -0 -n1 php -l
+	find sdks/php -path sdks/php/vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+	cd sdks/php && composer dump-autoload && composer test
 
 go:
 	cd sdks/go && go test ./...

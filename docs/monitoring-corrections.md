@@ -1,6 +1,6 @@
 # Monitoring, Webhook, and Correction Workflow
 
-v0.2 adds one language-neutral Integration Console on top of the SQLite queue shared by Python, Node.js, Go, Java, PHP, and .NET.
+v0.2 adds one language-neutral Integration Console on top of the SQLite queue shared by Python, Node.js, Go, Java, Ruby, PHP, and .NET.
 
 ```text
 SIMRS -> SDK queue -> SDK worker -> SATUSEHAT

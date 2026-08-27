@@ -33,6 +33,7 @@ Configure these repository or environment secrets before running release workflo
 - `SATUSEHAT_SANDBOX_ORGANIZATION_ID`
 - `NPM_TOKEN`
 - `PYPI_API_TOKEN`
+- `RUBYGEMS_API_KEY`
 - `NUGET_API_KEY`
 - `PACKAGIST_USERNAME`
 - `PACKAGIST_API_TOKEN`
@@ -81,6 +82,7 @@ Manual registry commands, if needed:
 ```bash
 cd sdks/node && npm publish --access public
 cd sdks/python && python -m build && twine upload dist/*
+cd sdks/ruby && gem build satusehat-integration-sdk.gemspec && gem push satusehat-integration-sdk-*.gem
 cd sdks/dotnet && dotnet pack -c Release && dotnet nuget push bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json
 ```
 
@@ -90,5 +92,5 @@ Go publishes from the public Git tag. Packagist is refreshed through its update-
 
 - GitHub: mark the release as deprecated or delete the release asset if it contains a packaging error.
 - npm: deprecate the version; unpublish only if registry policy allows and the package is unsafe.
-- PyPI/NuGet/Maven: yank/deprecate where supported; otherwise publish a fixed patch version.
+- PyPI/RubyGems/NuGet/Maven: yank/deprecate where supported; otherwise publish a fixed patch version.
 - Packagist/Go: leave the immutable tag in place unless it exposes secrets; publish a patch tag and document the superseded version.

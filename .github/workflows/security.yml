@@ -77,6 +77,20 @@ jobs:
           extensions: curl, pdo_sqlite, sqlite3
       - run: cd sdks/php && composer install && composer audit
 
+  ruby:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: sdks/ruby
+      - run: gem install bundler-audit
+      - run: cd sdks/ruby && bundle-audit check --update
+
   dotnet:
     runs-on: ubuntu-latest
     permissions:

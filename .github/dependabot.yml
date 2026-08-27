@@ -15,6 +15,9 @@ updates:
   - package-ecosystem: composer
     directory: /sdks/php
     schedule: {interval: weekly}
+  - package-ecosystem: bundler
+    directory: /sdks/ruby
+    schedule: {interval: weekly}
   - package-ecosystem: nuget
     directory: /sdks/dotnet
     schedule: {interval: weekly}
