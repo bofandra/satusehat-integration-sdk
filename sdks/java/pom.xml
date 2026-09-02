@@ -25,7 +25,7 @@
   </scm>
   <properties><maven.compiler.release>21</maven.compiler.release><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
   <dependencies>
-    <dependency><groupId>org.xerial</groupId><artifactId>sqlite-jdbc</artifactId><version>3.53.2.0</version></dependency>
+    <dependency><groupId>org.xerial</groupId><artifactId>sqlite-jdbc</artifactId><version>3.53.4.0</version></dependency>
     <dependency>
     <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter</artifactId>
