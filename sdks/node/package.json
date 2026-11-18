@@ -42,6 +42,6 @@
     "url": "https://github.com/bofandra/satusehat-integration-sdk"
   },
   "dependencies": {
-    "better-sqlite3": "13.0.3"
+    "better-sqlite3": "13.2.0"
   }
 }
